@@ -5,8 +5,7 @@ import "firebase/auth";
 import './Login.css';
 
 const Verify = () => {
-
-  const [error, setError] = useState('');
+  const [status, setStatus] = useState('Autenticando...');
 
   useEffect(() => {
     const email = window.localStorage.getItem('simpleMessengerEmail');
@@ -14,16 +13,22 @@ const Verify = () => {
     const signIn = firebase.auth().signInWithEmailLink(email, window.location.href);
 
     if (!isSignIn || !signIn) {
-      setError('404');
+      setStatus('404');
       return;
     }
 
-    window.location.href = '/login';
+    firebase.auth().onAuthStateChanged(function(user) {
+      if (user) {
+        console.log('Verify', user);
+        setStatus('Direcionando para mensagens...');
+        window.location.href = `messages/${user.uid}`;
+      }
+    });
   }, []);
 
   return (
     <div className="App">
-      { error ? '404' : 'Verificando...'}
+      { status }
     </div>
   );
 }
